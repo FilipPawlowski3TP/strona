@@ -2,26 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 180 100% 50%;
+    --accent-foreground: 240 10% 4%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 180 100% 50%;
+    --radius: 1.5rem;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-white antialiased selection:bg-primary/30 selection:text-primary min-h-screen relative;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer components {
+
+  /* Global Background System (from Hero) */
+  .bg-noise {
+    @apply fixed inset-0 z-0 pointer-events-none opacity-[0.03];
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  }
+
+  .bg-glow-main {
+    @apply fixed inset-0 z-0 pointer-events-none;
+    background: radial-gradient(circle at 50% 10%, hsla(180, 100%, 50%, 0.12) 0%, transparent 60%);
+  }
+
+  /* Standardized Premium Typography */
+  .heading-hero {
+    @apply font-black tracking-tightest leading-[0.9] text-white uppercase;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Standardized Primary Button (Hero Style) */
+  .btn-primary {
+    @apply relative px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2;
+    box-shadow: 0 0 25px hsla(180, 100%, 50%, 0.4);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 40px hsla(180, 100%, 50%, 0.6);
+  }
+
+  /* Standardized Secondary Button (Hero Style) */
+  .btn-secondary {
+    @apply px-8 py-4 rounded-full border border-white/10 bg-white/5 text-white font-bold text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur-sm;
+  }
+
+  /* Standardized Premium Card (Hero Interactive Style) */
+  .card-premium {
+    @apply relative p-10 rounded-[2rem] border border-white/5 bg-white/[0.02] backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.06] hover:border-primary/20 overflow-hidden;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-premium::before {
+    content: "";
+    @apply absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none;
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(0, 242, 255, 0.06), transparent 40%);
+  }
+
+  /* Text Glow Class (Hero Style) */
+  .text-glow-accent {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-primary;
+    filter: drop-shadow(0 0 15px hsla(180, 100%, 50%, 0.35));
+  }
+
+  /* Icon Glow Wrapper */
+  .icon-glow-wrapper {
+    @apply w-14 h-14 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/30;
+    box-shadow: inset 0 0 10px hsla(180, 100%, 50%, 0.1);
   }
 }
