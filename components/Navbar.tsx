@@ -2,102 +2,153 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
-import { Menu, X, Terminal, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 export function Navbar() {
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
-    const navigation = [
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const navLinks = [
         { name: "Home", href: "/" },
-        ...(session ? [{ name: "Dashboard", href: "/dashboard" }] : []),
-        ...(!session ? [
-            { name: "Login", href: "/login" },
-            { name: "Register", href: "/register" }
-        ] : [])
+        { name: "Games", href: "#games" },
+        { name: "Features", href: "#features" },
+        { name: "FAQ", href: "#faq" },
+        { name: "Forum", href: "https://forum.voidhook.tech" },
     ];
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    <div className="flex items-center">
-                        <Link href="/" className="flex items-center space-x-2 group">
-                            <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-                                <Terminal className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-xl font-black tracking-tighter text-white uppercase italic">
-                                VOID<span className="text-indigo-500">HOOK</span>
-                            </span>
-                        </Link>
-                    </div>
+        <nav
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled
+                    ? "bg-zinc-950/80 backdrop-blur-xl border-white/5 py-3"
+                    : "bg-transparent border-transparent py-5"
+                }`}
+        >
+            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                <div className="flex items-center justify-between">
+                    {/* Brand */}
+                    <Link href="/" className="flex items-center space-x-2">
+                        <span className="text-2xl font-black tracking-tighter text-white uppercase italic">
+                            VOID<span className="text-indigo-500">HOOK</span>
+                        </span>
+                    </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:block">
-                        <div className="ml-10 flex items-baseline space-x-8">
-                            {navigation.map((item) => (
+                    <div className="hidden md:flex items-center space-x-8">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Desktop Auth */}
+                    <div className="hidden md:flex items-center space-x-4">
+                        {session ? (
+                            <>
                                 <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className="text-zinc-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                                    href="/dashboard"
+                                    className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                                 >
-                                    {item.name}
+                                    Dashboard
                                 </Link>
-                            ))}
-                            {session && (
                                 <button
                                     onClick={() => signOut({ callbackUrl: "/login" })}
-                                    className="text-zinc-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                                    className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-all"
                                 >
                                     Logout
                                 </button>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="text-sm font-medium text-zinc-400 hover:text-white transition-colors px-4"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className="group flex items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/25 active:scale-95"
+                                >
+                                    <span>Register</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                                </Link>
+                            </>
+                        )}
                     </div>
 
-                    {/* Mobile menu button */}
+                    {/* Mobile Menu Button */}
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none"
+                            className="p-2 text-zinc-400 hover:text-white transition-colors"
                         >
-                            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Mobile menu */}
-            {isOpen && (
-                <div className="md:hidden bg-zinc-900 border-b border-zinc-800">
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        {navigation.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className="text-zinc-400 hover:text-white hover:bg-zinc-800 block px-4 py-3 rounded-md text-base font-medium flex items-center justify-between"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {item.name}
-                                <ChevronRight className="w-4 h-4" />
-                            </Link>
-                        ))}
-                        {session && (
-                            <button
-                                onClick={() => {
-                                    signOut({ callbackUrl: "/login" });
-                                    setIsOpen(false);
-                                }}
-                                className="w-full text-left text-zinc-400 hover:text-white hover:bg-zinc-800 block px-4 py-3 rounded-md text-base font-medium flex items-center justify-between"
-                            >
-                                Logout
-                                <ChevronRight className="w-4 h-4" />
-                            </button>
+            {/* Mobile Menu */}
+            <div className={`
+                absolute top-full left-0 right-0 bg-zinc-950 border-b border-zinc-800 transition-all duration-300 md:hidden
+                ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
+            `}>
+                <div className="flex flex-col p-6 space-y-4">
+                    {navLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            href={link.href}
+                            className="text-lg font-medium text-zinc-400 hover:text-white"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                    <div className="pt-4 flex flex-col space-y-3">
+                        {session ? (
+                            <>
+                                <Link href="/dashboard" className="text-zinc-400" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                                <button
+                                    onClick={() => {
+                                        signOut({ callbackUrl: "/login" });
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full py-3 bg-zinc-900 text-white rounded-xl font-bold"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/login" className="py-3 text-center text-zinc-400 font-bold" onClick={() => setIsOpen(false)}>Login</Link>
+                                <Link
+                                    href="/register"
+                                    className="w-full py-3 bg-indigo-600 text-white text-center rounded-xl font-bold flex items-center justify-center space-x-2"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    <span>Register</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </>
                         )}
                     </div>
                 </div>
-            )}
+            </div>
         </nav>
     );
 }

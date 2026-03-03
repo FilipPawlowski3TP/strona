@@ -4,22 +4,28 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
     try {
-        const { username, password } = await req.json();
+        const { username, email, password } = await req.json();
 
-        if (!username || !password) {
+        if (!username || !email || !password) {
             return NextResponse.json(
-                { error: "Username and password are required" },
+                { error: "Username, email and password are required" },
                 { status: 400 }
             );
         }
 
-        const existingUser = await prisma.user.findUnique({
-            where: { username },
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username },
+                    { email }
+                ]
+            },
         });
 
         if (existingUser) {
+            const field = existingUser.username === username ? "Username" : "Email";
             return NextResponse.json(
-                { error: "Username already exists" },
+                { error: `${field} already exists` },
                 { status: 400 }
             );
         }
@@ -33,6 +39,7 @@ export async function POST(req: Request) {
         const user = await prisma.user.create({
             data: {
                 username,
+                email,
                 password: hashedPassword,
                 subscription_expires_at: subscriptionExpiresAt,
                 cloud_config: {},
