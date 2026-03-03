@@ -12,8 +12,9 @@ export async function POST(req: Request) {
 
         const { cloudConfig } = await req.json();
 
+        const user = session.user as { username: string };
         const updatedUser = await prisma.user.update({
-            where: { username: (session.user as any).username },
+            where: { username: user.username },
             data: {
                 cloud_config: cloudConfig,
             },

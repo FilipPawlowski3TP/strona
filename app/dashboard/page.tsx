@@ -4,6 +4,12 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+interface CustomUser {
+    id: string;
+    username: string;
+    name?: string;
+}
+
 export default function DashboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -24,7 +30,7 @@ export default function DashboardPage() {
             let parsedConfig;
             try {
                 parsedConfig = JSON.parse(config);
-            } catch (e) {
+            } catch {
                 setMessage("Invalid JSON format");
                 setLoading(false);
                 return;
@@ -41,7 +47,7 @@ export default function DashboardPage() {
             } else {
                 setMessage("Failed to update configuration");
             }
-        } catch (err) {
+        } catch {
             setMessage("An error occurred");
         } finally {
             setLoading(false);
@@ -56,13 +62,15 @@ export default function DashboardPage() {
         );
     }
 
+    const user = session?.user as CustomUser | undefined;
+
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6">
+        <div className="min-h-screen bg-zinc-950 text-white p-6 pt-24">
             <div className="max-w-6xl mx-auto space-y-8">
                 <header className="flex justify-between items-center bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-                        <p className="text-zinc-400">Welcome back, <span className="text-indigo-400">{(session?.user as any)?.username}</span></p>
+                        <p className="text-zinc-400">Welcome back, <span className="text-indigo-400">{user?.username}</span></p>
                     </div>
                     <button
                         onClick={() => signOut({ callbackUrl: "/login" })}

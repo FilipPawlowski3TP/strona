@@ -1,114 +1,103 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Terminal, User } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import { useState } from "react";
+import { Menu, X, Terminal, ChevronRight } from "lucide-react";
 
-const navLinks = [
-    { name: "Features", href: "#features" },
-    { name: "Protocol", href: "#hero" },
-    { name: "FAQ", href: "#faq" },
-    { name: "Documentation", href: "#" },
-];
+export function Navbar() {
+    const { data: session } = useSession();
+    const [isOpen, setIsOpen] = useState(false);
 
-export const Navbar = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { data: session, status } = useSession();
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
-        };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    const navigation = [
+        { name: "Home", href: "/" },
+        ...(session ? [{ name: "Dashboard", href: "/dashboard" }] : []),
+        ...(!session ? [
+            { name: "Login", href: "/login" },
+            { name: "Register", href: "/register" }
+        ] : [])
+    ];
 
     return (
-        <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${isScrolled
-                ? "py-4 bg-background/80 backdrop-blur-xl border-white/5"
-                : "py-6 bg-transparent border-transparent"
-                }`}
-        >
-            <div className="container mx-auto px-6 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-all duration-300">
-                        <Terminal size={22} className="text-primary" />
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
+                    <div className="flex items-center">
+                        <Link href="/" className="flex items-center space-x-2 group">
+                            <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
+                                <Terminal className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-xl font-black tracking-tighter text-white uppercase italic">
+                                VOID<span className="text-indigo-500">HOOK</span>
+                            </span>
+                        </Link>
                     </div>
-                    <span className="text-xl font-black tracking-tightest uppercase text-white">
-                        VOID<span className="text-primary italic">HOOK</span>
-                    </span>
-                </Link>
 
-                {/* Desktop Links */}
-                <div className="hidden md:flex items-center gap-10">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className="text-xs font-black tracking-widest text-muted-foreground hover:text-primary transition-all duration-200 uppercase"
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:block">
+                        <div className="ml-10 flex items-baseline space-x-8">
+                            {navigation.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="text-zinc-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                            {session && (
+                                <button
+                                    onClick={() => signOut({ callbackUrl: "/login" })}
+                                    className="text-zinc-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                                >
+                                    Logout
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Mobile menu button */}
+                    <div className="md:hidden">
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none"
                         >
-                            {link.name}
-                        </Link>
-                    ))}
-                    {status === "loading" ? (
-                        <div className="w-24 h-8 bg-white/5 rounded-lg animate-pulse" />
-                    ) : session ? (
-                        <Link href="/panel" className="btn-primary px-6 py-2.5 text-xs tracking-widest flex items-center gap-2">
-                            <User size={14} /> OPERATOR_PANEL
-                        </Link>
-                    ) : (
-                        <Link href="/login" className="btn-primary px-6 py-2.5 text-xs tracking-widest">
-                            INITIALIZE ACCESS
-                        </Link>
-                    )}
+                            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                        </button>
+                    </div>
                 </div>
-
-                {/* Mobile Toggle */}
-                <button
-                    className="md:hidden text-white"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
             </div>
 
-            {/* Mobile Menu */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-2xl border-b border-white/5 p-6 flex flex-col gap-6 md:hidden"
-                    >
-                        {navLinks.map((link) => (
+            {/* Mobile menu */}
+            {isOpen && (
+                <div className="md:hidden bg-zinc-900 border-b border-zinc-800">
+                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        {navigation.map((item) => (
                             <Link
-                                key={link.name}
-                                href={link.href}
-                                className="text-lg font-black tracking-widest text-white uppercase"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                key={item.name}
+                                href={item.href}
+                                className="text-zinc-400 hover:text-white hover:bg-zinc-800 block px-4 py-3 rounded-md text-base font-medium flex items-center justify-between"
+                                onClick={() => setIsOpen(false)}
                             >
-                                {link.name}
+                                {item.name}
+                                <ChevronRight className="w-4 h-4" />
                             </Link>
                         ))}
-                        {status === "loading" ? (
-                            <div className="w-full h-12 bg-white/5 rounded-lg animate-pulse" />
-                        ) : session ? (
-                            <Link href="/panel" className="btn-primary w-full py-4 tracking-widest flex justify-center items-center gap-2">
-                                <User size={18} /> OPERATOR_PANEL
-                            </Link>
-                        ) : (
-                            <Link href="/login" className="btn-primary w-full py-4 tracking-widest flex justify-center">
-                                INITIALIZE ACCESS
-                            </Link>
+                        {session && (
+                            <button
+                                onClick={() => {
+                                    signOut({ callbackUrl: "/login" });
+                                    setIsOpen(false);
+                                }}
+                                className="w-full text-left text-zinc-400 hover:text-white hover:bg-zinc-800 block px-4 py-3 rounded-md text-base font-medium flex items-center justify-between"
+                            >
+                                Logout
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
                         )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </div>
+                </div>
+            )}
         </nav>
     );
-};
+}

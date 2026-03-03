@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+interface RegisterResponse {
+    error?: string;
+    message?: string;
+}
+
 export default function RegisterPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -23,14 +28,14 @@ export default function RegisterPage() {
                 body: JSON.stringify({ username, password }),
             });
 
-            const data = await res.json();
+            const data: RegisterResponse = await res.json();
 
             if (res.ok) {
                 router.push("/login?registered=true");
             } else {
                 setError(data.error || "Something went wrong");
             }
-        } catch (err) {
+        } catch {
             setError("Failed to register");
         } finally {
             setLoading(false);
