@@ -8,17 +8,17 @@ const handler = NextAuth({
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Missing email or password");
+                if (!credentials?.username || !credentials?.password) {
+                    throw new Error("Missing username or password");
                 }
 
                 const user = await prisma.user.findUnique({
                     where: {
-                        email: credentials.email
+                        username: credentials.username
                     }
                 });
 
@@ -34,8 +34,8 @@ const handler = NextAuth({
 
                 return {
                     id: user.id,
-                    email: user.email,
-                    name: user.name,
+                    name: user.username,
+                    username: user.username,
                 };
             }
         })
@@ -51,14 +51,15 @@ const handler = NextAuth({
             if (token) {
                 session.user = {
                     ...session.user,
-                    id: token.id as string,
+                    id: token.sub as string,
+                    username: token.username as string,
                 } as any;
             }
             return session;
         },
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
+                token.username = (user as any).username;
             }
             return token;
         }

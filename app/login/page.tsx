@@ -1,113 +1,111 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
 
 export default function LoginPage() {
-    const router = useRouter();
-    const [data, setData] = useState({ email: "", password: "" });
-    const [error, setError] = useState<string | null>(null);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const registered = searchParams.get("registered");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
+        setError("");
 
-        const result = await signIn("credentials", {
-            ...data,
-            redirect: false,
-        });
+        try {
+            const res = await signIn("credentials", {
+                username,
+                password,
+                redirect: false,
+            });
 
-        if (result?.error) {
-            setError(result.error);
+            if (res?.error) {
+                setError("Invalid username or password");
+            } else {
+                router.push("/dashboard");
+                router.refresh();
+            }
+        } catch (err) {
+            setError("An error occurred during login");
+        } finally {
             setLoading(false);
-        } else {
-            router.push("/panel");
-            router.refresh();
         }
     };
 
     return (
-        <div className="w-full relative min-h-screen flex flex-col">
-            <div className="bg-noise" />
-            <div className="bg-glow-main opacity-50" />
+        <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white p-4">
+            <div className="w-full max-w-md space-y-8 bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800 backdrop-blur-sm">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold tracking-tight text-white">Welcome Back</h1>
+                    <p className="mt-2 text-zinc-400">Sign in to manage your subscription</p>
+                </div>
 
-            <Navbar />
+                {registered && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 p-3 rounded-lg text-sm text-center">
+                        Registration successful! Please log in.
+                    </div>
+                )}
 
-            <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 mt-16">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="card-premium p-10 md:p-14 w-full max-w-md relative overflow-hidden"
-                >
-                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm text-center">
+                            {error}
+                        </div>
+                    )}
 
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl font-black text-white tracking-tightest uppercase mb-2">Initialize Session</h1>
-                        <p className="text-muted-foreground text-sm font-medium">Enter your credentials to access the panel.</p>
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="username" className="block text-sm font-medium text-zinc-400 mb-1">
+                                Username
+                            </label>
+                            <input
+                                id="username"
+                                type="text"
+                                required
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                placeholder="Your username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-zinc-400 mb-1">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                type="password"
+                                required
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {error && (
-                            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
-                                <AlertCircle className="text-red-400" size={18} />
-                                <p className="text-red-400 text-sm font-bold">{error}</p>
-                            </div>
-                        )}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
+                    >
+                        {loading ? "Signing in..." : "Log In"}
+                    </button>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black tracking-widest text-muted-foreground uppercase ml-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={18} />
-                                <input
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) => setData({ ...data, email: e.target.value })}
-                                    placeholder="operator@voidhook.cc"
-                                    required
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black tracking-widest text-muted-foreground uppercase ml-1">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={18} />
-                                <input
-                                    type="password"
-                                    value={data.password}
-                                    onChange={(e) => setData({ ...data, password: e.target.value })}
-                                    placeholder="••••••••"
-                                    required
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-primary w-full py-4 mt-8 flex justify-center"
-                        >
-                            {loading ? "AUTHENTICATING..." : (
-                                <>LOGIN TO PANEL <ArrowRight size={18} /></>
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="mt-8 text-center">
-                        <p className="text-muted-foreground text-sm">
-                            Don't have a license? <Link href="/register" className="text-primary hover:text-white transition-colors font-bold">Register here</Link>
-                        </p>
-                    </div>
-                </motion.div>
+                    <p className="text-center text-sm text-zinc-500">
+                        Don't have an account?{" "}
+                        <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                            Register now
+                        </Link>
+                    </p>
+                </form>
             </div>
         </div>
     );
