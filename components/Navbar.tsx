@@ -29,8 +29,8 @@ export function Navbar() {
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled
-                    ? "bg-zinc-950/80 backdrop-blur-xl border-white/5 py-3"
-                    : "bg-transparent border-transparent py-5"
+                ? "bg-zinc-950/80 backdrop-blur-xl border-white/5 py-3"
+                : "bg-transparent border-transparent py-5"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -64,6 +64,12 @@ export function Navbar() {
                                     className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                                 >
                                     Dashboard
+                                </Link>
+                                <Link
+                                    href="/dashboard/radar"
+                                    className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                                >
+                                    Web Radar
                                 </Link>
                                 <button
                                     onClick={() => signOut({ callbackUrl: "/login" })}
@@ -123,6 +129,7 @@ export function Navbar() {
                         {session ? (
                             <>
                                 <Link href="/dashboard" className="text-zinc-400" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                                <Link href="/dashboard/radar" className="text-zinc-400" onClick={() => setIsOpen(false)}>Web Radar</Link>
                                 <button
                                     onClick={() => {
                                         signOut({ callbackUrl: "/login" });
