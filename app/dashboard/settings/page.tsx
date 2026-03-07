@@ -135,12 +135,16 @@ export default function SettingsPage() {
                     {/* Avatar Section */}
                     <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/5">
                         <div className="w-32 h-32 bg-indigo-600/20 rounded-full flex items-center justify-center border-2 border-indigo-500/30 overflow-hidden relative group">
-                            {avatarUrl ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <User className="w-12 h-12 text-indigo-400" />
-                            )}
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                src={avatarUrl || `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
+                                alt="Avatar"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`;
+                                }}
+                            />
                             <div
                                 className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                                 onClick={() => fileInputRef.current?.click()}
