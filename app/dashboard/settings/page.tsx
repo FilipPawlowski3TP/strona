@@ -137,7 +137,7 @@ export default function SettingsPage() {
                         <div className="w-32 h-32 bg-indigo-600/20 rounded-full flex items-center justify-center border-2 border-indigo-500/30 overflow-hidden relative group">
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
-                                src={avatarUrl || `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
+                                src={avatarUrl ? `${avatarUrl}?t=${new Date().getTime()}` : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

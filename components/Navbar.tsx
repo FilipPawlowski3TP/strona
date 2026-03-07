@@ -76,7 +76,7 @@ export function Navbar() {
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center overflow-hidden border border-indigo-500/30">
                                         /* eslint-disable-next-line @next/next/no-img-element */
                                         <img
-                                            src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
+                                            src={user?.avatar_url ? `${user.avatar_url}?t=${new Date().getTime()}` : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
                                             alt="Avatar"
                                             className="w-full h-full object-cover"
                                             onError={(e) => {

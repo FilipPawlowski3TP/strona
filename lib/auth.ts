@@ -65,7 +65,7 @@ export const authOptions: AuthOptions = {
             }
             return session;
         },
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 token.username = (user as any).username;
@@ -76,6 +76,13 @@ export const authOptions: AuthOptions = {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 token.subscription_expires_at = (user as any).subscription_expires_at;
             }
+
+            if (trigger === "update" && session) {
+                if (session.avatarUrl) token.avatar_url = session.avatarUrl;
+                if (session.avatar_url) token.avatar_url = session.avatar_url;
+                if (session.email) token.email = session.email;
+            }
+
             return token;
         }
     },
