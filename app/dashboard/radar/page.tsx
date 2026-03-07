@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { MapPin, Plus, Trash2, Copy, ExternalLink, Users } from "lucide-react";
 
 interface RadarSession {
@@ -15,7 +14,7 @@ interface RadarSession {
 }
 
 export default function RadarDashboardPage() {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
 
     const [sessions, setSessions] = useState<RadarSession[]>([]);

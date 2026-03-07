@@ -84,7 +84,7 @@ export default function SettingsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     email,
-                    avatar_url: avatarUrl
+                    avatarUrl: avatarUrl
                 }),
             });
 

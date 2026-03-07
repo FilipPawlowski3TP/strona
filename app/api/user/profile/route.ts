@@ -9,6 +9,11 @@ interface SessionUser {
     email: string;
 }
 
+interface UpdateData {
+    email?: string;
+    avatar_url?: string;
+}
+
 export async function PUT(req: Request) {
     try {
         const session = await getServerSession(authOptions);
@@ -17,10 +22,12 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { email, avatar_url } = await req.json();
+        const body = await req.json();
+        const { email, avatar_url, avatarUrl } = body;
+        const finalAvatarUrl = avatarUrl || avatar_url;
 
         // Prepare update data
-        const updateData: any = {};
+        const updateData: UpdateData = {};
         if (email) {
             // Check if email is already used by someone else
             const existingUser = await prisma.user.findUnique({
@@ -32,8 +39,9 @@ export async function PUT(req: Request) {
             }
             updateData.email = email;
         }
-        if (avatar_url !== undefined) {
-            updateData.avatar_url = avatar_url;
+
+        if (finalAvatarUrl !== undefined) {
+            updateData.avatar_url = finalAvatarUrl;
         }
 
         if (Object.keys(updateData).length === 0) {
