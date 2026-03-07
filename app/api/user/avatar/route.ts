@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         const fileName = `${crypto.randomUUID()}${originalExt}`;
 
         // Setup upload directory
-        const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
+        const uploadDir = path.join(process.cwd(), "public", "avatars");
 
         try {
             await mkdir(uploadDir, { recursive: true });
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
         // Update database
         const userId = (session.user as SessionUser).id;
-        const avatarUrl = `/uploads/avatars/${fileName}`;
+        const avatarUrl = `/avatars/${fileName}`;
 
         await prisma.user.update({
             where: { id: userId },

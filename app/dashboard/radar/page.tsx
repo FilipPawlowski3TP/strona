@@ -101,8 +101,8 @@ export default function RadarDashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6 pt-24">
-            <div className="max-w-4xl mx-auto space-y-8">
+        <div className="text-white p-6 md:p-10">
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-sm">
                     <div className="flex items-center space-x-5">
@@ -118,12 +118,6 @@ export default function RadarDashboardPage() {
                             </p>
                         </div>
                     </div>
-                    <Link
-                        href="/dashboard"
-                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-bold rounded-xl transition-all border border-zinc-700/50"
-                    >
-                        Back to Dashboard
-                    </Link>
                 </header>
 
                 {/* Create Session */}

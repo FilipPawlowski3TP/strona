@@ -36,8 +36,8 @@ export default function DashboardPage() {
     const user = session?.user as CustomUser | undefined;
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6 pt-24">
-            <div className="max-w-5xl mx-auto space-y-10">
+        <div className="text-white p-6 md:p-10">
+            <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-sm">
                     <div className="flex items-center space-x-5">

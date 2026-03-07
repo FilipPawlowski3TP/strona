@@ -66,7 +66,7 @@ export default function SettingsPage() {
             }
 
             setAvatarUrl(data.avatar_url);
-            setMessage({ type: "success", text: "Avatar uploaded successfully! Save changes to apply." });
+            setMessage({ type: "success", text: "Avatar uploaded successfully! Click 'Save Changes' to permanently apply it to your profile." });
         } catch (err: any) {
             setMessage({ type: "error", text: err.message });
         } finally {
@@ -109,18 +109,25 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6 pt-32">
-            <div className="max-w-3xl mx-auto space-y-8">
-                <div>
-                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-2">
-                        Profile <span className="text-indigo-500">Settings</span>
-                    </h1>
-                    <p className="text-zinc-400">Manage your account information and preferences.</p>
+        <div className="text-white p-6 md:p-10">
+            <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            Profile <span className="text-indigo-500 text-glow">Settings</span>
+                        </h1>
+                        <p className="text-zinc-500 mt-3 font-medium">Configure your identity and account credentials.</p>
+                    </div>
+                    <div className="flex items-center space-x-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                        <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Active Session</span>
+                    </div>
                 </div>
 
                 {message.text && (
-                    <div className={`p-4 rounded-xl border ${message.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
-                        {message.text}
+                    <div className={`p-4 rounded-2xl border flex items-center space-x-3 animate-in fade-in slide-in-from-top-4 duration-300 ${message.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'}`}>
+                        <div className={`w-2 h-2 rounded-full ${message.type === 'error' ? 'bg-red-500' : 'bg-indigo-500'}`}></div>
+                        <p className="text-sm font-bold">{message.text}</p>
                     </div>
                 )}
 

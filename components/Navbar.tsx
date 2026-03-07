@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight, User } from "lucide-react";
+import { Menu, X, ArrowRight, User, Settings, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 
 interface CustomUser {
     id: string;
@@ -17,6 +17,7 @@ export function Navbar() {
     const { data: session } = useSession();
     const user = session?.user as CustomUser | undefined;
     const [isOpen, setIsOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -67,8 +68,11 @@ export function Navbar() {
                     {/* Desktop Auth */}
                     <div className="hidden md:flex items-center space-x-4">
                         {session ? (
-                            <div className="flex items-center space-x-3 bg-zinc-900/50 border border-white/5 px-4 py-2 rounded-full cursor-pointer hover:bg-zinc-800/50 transition-all">
-                                <Link href="/dashboard" className="flex items-center space-x-3">
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    className="flex items-center space-x-3 bg-zinc-900/50 border border-white/5 pl-2 pr-4 py-2 rounded-full cursor-pointer hover:bg-zinc-800/50 transition-all focus:outline-none"
+                                >
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center overflow-hidden border border-indigo-500/30">
                                         {user?.avatar_url ? (
                                             /* eslint-disable-next-line @next/next/no-img-element */
@@ -77,8 +81,53 @@ export function Navbar() {
                                             <User className="w-4 h-4 text-indigo-400" />
                                         )}
                                     </div>
-                                    <span className="text-sm font-bold text-white pr-2">{user?.username || "User"}</span>
-                                </Link>
+                                    <span className="text-sm font-bold text-white max-w-[100px] truncate">{user?.username || "User"}</span>
+                                    <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
+                                </button>
+
+                                {/* Profile Dropdown */}
+                                {isProfileOpen && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-10"
+                                            onClick={() => setIsProfileOpen(false)}
+                                        ></div>
+                                        <div className="absolute right-0 mt-3 w-56 bg-zinc-950 border border-white/5 rounded-2xl shadow-2xl py-2 z-20 backdrop-blur-xl">
+                                            <div className="px-4 py-3 border-b border-white/5 mb-2">
+                                                <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Account</p>
+                                                <p className="text-sm font-bold text-white truncate">{user?.username}</p>
+                                            </div>
+
+                                            <Link
+                                                href="/dashboard"
+                                                className="flex items-center space-x-3 px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                                                onClick={() => setIsProfileOpen(false)}
+                                            >
+                                                <LayoutDashboard className="w-4 h-4" />
+                                                <span>Dashboard</span>
+                                            </Link>
+
+                                            <Link
+                                                href="/dashboard/settings"
+                                                className="flex items-center space-x-3 px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                                                onClick={() => setIsProfileOpen(false)}
+                                            >
+                                                <Settings className="w-4 h-4" />
+                                                <span>Settings</span>
+                                            </Link>
+
+                                            <div className="my-2 border-t border-white/5"></div>
+
+                                            <button
+                                                onClick={() => signOut({ callbackUrl: "/login" })}
+                                                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/5 transition-colors"
+                                            >
+                                                <LogOut className="w-4 h-4" />
+                                                <span>Sign Out</span>
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <>
