@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,6 +13,7 @@ model User {
   email                 String    @unique
   password              String
   hwid                  String?
+  avatar_url            String?
   is_banned             Boolean   @default(false)
   subscription_expires_at DateTime
   cloud_config          Json      @default("{}")

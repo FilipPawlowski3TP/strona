@@ -11,6 +11,8 @@ interface CustomUser {
     username: string;
     email: string;
     name?: string;
+    avatar_url?: string;
+    subscription_expires_at?: string | Date;
 }
 
 export default function DashboardPage() {
@@ -39,8 +41,13 @@ export default function DashboardPage() {
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-sm">
                     <div className="flex items-center space-x-5">
-                        <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20">
-                            <User className="w-8 h-8 text-indigo-500" />
+                        <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20 overflow-hidden">
+                            {user?.avatar_url ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={user.avatar_url} alt="User Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-8 h-8 text-indigo-500" />
+                            )}
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight text-white">
@@ -70,9 +77,21 @@ export default function DashboardPage() {
                         <div className="space-y-4">
                             <div className="flex justify-between items-center py-4 border-b border-white/5">
                                 <span className="text-zinc-500 font-medium">Subscription</span>
-                                <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-black border border-emerald-500/20 tracking-widest">
-                                    ACTIVE
-                                </span>
+                                {(() => {
+                                    if (!user?.subscription_expires_at) return <span className="px-4 py-1.5 bg-zinc-500/10 text-zinc-500 rounded-full text-xs font-black border border-zinc-500/20 tracking-widest">UNKNOWN</span>;
+                                    const expiresAt = new Date(user.subscription_expires_at);
+                                    const isExpired = new Date() > expiresAt;
+
+                                    return isExpired ? (
+                                        <span className="px-4 py-1.5 bg-red-500/10 text-red-500 rounded-full text-xs font-black border border-red-500/20 tracking-widest">
+                                            EXPIRED
+                                        </span>
+                                    ) : (
+                                        <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-black border border-emerald-500/20 tracking-widest">
+                                            ACTIVE
+                                        </span>
+                                    );
+                                })()}
                             </div>
                             <div className="flex justify-between items-center py-4 border-b border-white/5">
                                 <span className="text-zinc-500 font-medium">Plan Type</span>
@@ -81,9 +100,21 @@ export default function DashboardPage() {
                             <div className="flex justify-between items-center py-4">
                                 <div className="flex items-center space-x-2 text-zinc-500">
                                     <Clock className="w-4 h-4" />
-                                    <span className="font-medium">Expires In</span>
+                                    <span className="font-medium">Status</span>
                                 </div>
-                                <span className="text-indigo-400 font-black">29 DAYS</span>
+                                {(() => {
+                                    if (!user?.subscription_expires_at) return <span className="text-zinc-400 font-black">UNKNOWN</span>;
+                                    const expiresAt = new Date(user.subscription_expires_at);
+                                    const now = new Date();
+                                    const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                    return diffDays > 0 ? (
+                                        <span className="text-indigo-400 font-black">{diffDays} DAYS</span>
+                                    ) : (
+                                        <span className="text-red-500 font-black">EXPIRED</span>
+                                    );
+                                })()}
                             </div>
                         </div>
 

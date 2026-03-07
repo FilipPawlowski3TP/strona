@@ -55,12 +55,24 @@ export async function POST(req: Request) {
             );
         }
 
-        // Success - Return cloud_config and subscription status
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let avatarUrl = (user as any).avatar_url;
+        if (avatarUrl && !avatarUrl.startsWith("http")) {
+            const origin = new URL(req.url).origin;
+            avatarUrl = `${origin}${avatarUrl}`;
+        }
+
+        const expiresAt = new Date(user.subscription_expires_at);
+        const now = new Date();
+        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
         return NextResponse.json({
             status: "success",
-            subscription_expires_at: user.subscription_expires_at,
-            is_expired: new Date() > new Date(user.subscription_expires_at),
-            cloud_config: user.cloud_config,
+            username: user.username,
+            avatar_url: avatarUrl || "",
+            days_left: daysLeft,
+            hwid: user.hwid
         });
 
     } catch (error) {
