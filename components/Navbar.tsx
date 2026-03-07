@@ -3,10 +3,19 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, User } from "lucide-react";
+
+interface CustomUser {
+    id: string;
+    username: string;
+    email: string;
+    name?: string;
+    avatar_url?: string;
+}
 
 export function Navbar() {
     const { data: session } = useSession();
+    const user = session?.user as CustomUser | undefined;
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -58,26 +67,19 @@ export function Navbar() {
                     {/* Desktop Auth */}
                     <div className="hidden md:flex items-center space-x-4">
                         {session ? (
-                            <>
-                                <Link
-                                    href="/dashboard"
-                                    className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                                >
-                                    Dashboard
+                            <div className="flex items-center space-x-3 bg-zinc-900/50 border border-white/5 px-4 py-2 rounded-full cursor-pointer hover:bg-zinc-800/50 transition-all">
+                                <Link href="/dashboard" className="flex items-center space-x-3">
+                                    <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center overflow-hidden border border-indigo-500/30">
+                                        {user?.avatar_url ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
+                                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User className="w-4 h-4 text-indigo-400" />
+                                        )}
+                                    </div>
+                                    <span className="text-sm font-bold text-white pr-2">{user?.username || "User"}</span>
                                 </Link>
-                                <Link
-                                    href="/dashboard/radar"
-                                    className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                                >
-                                    Web Radar
-                                </Link>
-                                <button
-                                    onClick={() => signOut({ callbackUrl: "/login" })}
-                                    className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-all"
-                                >
-                                    Logout
-                                </button>
-                            </>
+                            </div>
                         ) : (
                             <>
                                 <Link

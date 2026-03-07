@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,10 +16,10 @@ model User {
   avatar_url            String?
   is_banned             Boolean   @default(false)
   subscription_expires_at DateTime
-  cloud_config          Json      @default("{}")
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   radar_sessions        RadarSession[]
+  cloud_configs         CloudConfig[]
 }
 
 model RadarSession {
@@ -30,5 +30,14 @@ model RadarSession {
   created_at  DateTime @default(now())
   expires_at  DateTime
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model CloudConfig {
+  id         String   @id @default(uuid())
+  userId     String
+  name       String
+  data       Json
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

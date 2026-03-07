@@ -35,14 +35,12 @@ export async function POST(req: Request) {
         // Default: 30 days subscription for new users
         const subscriptionExpiresAt = new Date();
         subscriptionExpiresAt.setDate(subscriptionExpiresAt.getDate() + 30);
-
         const user = await prisma.user.create({
             data: {
                 username,
                 email,
                 password: hashedPassword,
-                subscription_expires_at: subscriptionExpiresAt,
-                cloud_config: {},
+                subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days trial/initial
             },
         });
 

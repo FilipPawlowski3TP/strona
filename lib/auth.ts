@@ -37,9 +37,7 @@ export const authOptions: AuthOptions = {
                     name: user.username,
                     username: user.username,
                     email: user.email,
-                    // @ts-ignore: Prisma schema is updated but types might be cached
                     avatar_url: user.avatar_url,
-                    // @ts-ignore: Prisma schema is updated but types might be cached
                     subscription_expires_at: user.subscription_expires_at,
                 };
             }

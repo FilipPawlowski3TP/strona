@@ -6,11 +6,17 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
+interface SessionUser {
+    id: string;
+    username: string;
+    email: string;
+}
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session || !(session.user as any)?.id) {
+        if (!session || !(session.user as SessionUser)?.id) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -53,12 +59,11 @@ export async function POST(req: Request) {
         await writeFile(filePath, buffer);
 
         // Update database
-        const userId = (session.user as any).id;
+        const userId = (session.user as SessionUser).id;
         const avatarUrl = `/uploads/avatars/${fileName}`;
 
         await prisma.user.update({
             where: { id: userId },
-            // @ts-ignore: Prisma schema is updated but types might be cached
             data: { avatar_url: avatarUrl },
         });
 

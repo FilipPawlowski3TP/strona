@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import crypto from 'crypto';
 
 function generateShareCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -12,7 +11,7 @@ function generateShareCode() {
     return code;
 }
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const session = await getServerSession();
 
@@ -43,8 +42,8 @@ export async function GET(request: Request) {
         }));
 
         return NextResponse.json({ success: true, sessions: formattedSessions });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }
 
@@ -88,7 +87,7 @@ export async function POST(request: Request) {
                 expiresAt: newSession.expires_at.toISOString()
             }
         });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }

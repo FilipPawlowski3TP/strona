@@ -36,7 +36,7 @@ export async function GET(
                 expiresAt: radarSession.expires_at.toISOString()
             }
         });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }
