@@ -74,16 +74,24 @@ export function Navbar() {
                                     className="flex items-center space-x-3 bg-zinc-900/50 border border-white/5 pl-2 pr-4 py-2 rounded-full cursor-pointer hover:bg-zinc-800/50 transition-all focus:outline-none"
                                 >
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center overflow-hidden border border-indigo-500/30">
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img
-                                            src={user?.avatar_url ? (user.avatar_url.startsWith('http') ? user.avatar_url : `${user.avatar_url}?t=${Date.now()}`) : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
-                                            alt="Avatar"
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`;
-                                            }}
-                                        />
+                                        {user?.avatar_url ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
+                                            <img
+                                                key={user.avatar_url}
+                                                src={`${user.avatar_url}?v=${Date.now()}`}
+                                                alt="Avatar"
+                                                className="absolute inset-0 w-full h-full object-cover z-10"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.visibility = 'hidden';
+                                                }}
+                                                onLoad={(e) => {
+                                                    (e.target as HTMLImageElement).style.visibility = 'visible';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <span className="text-[10px] font-black text-indigo-400 absolute z-0 uppercase">
+                                            {user?.username?.charAt(0) || 'V'}
+                                        </span>
                                     </div>
                                     <span className="text-sm font-bold text-white max-w-[100px] truncate">{user?.username || "User"}</span>
                                     <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />

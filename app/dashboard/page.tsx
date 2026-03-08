@@ -41,17 +41,25 @@ export default function DashboardPage() {
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-sm">
                     <div className="flex items-center space-x-5">
-                        <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20 overflow-hidden">
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                                src={user?.avatar_url ? (user.avatar_url.startsWith('http') ? user.avatar_url : `${user.avatar_url}?t=${Date.now()}`) : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
-                                alt="User Avatar"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`;
-                                }}
-                            />
+                        <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20 overflow-hidden relative">
+                            {user?.avatar_url ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                    key={user.avatar_url}
+                                    src={`${user.avatar_url}?v=${Date.now()}`}
+                                    alt="User Avatar"
+                                    className="absolute inset-0 w-full h-full object-cover z-10"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.visibility = 'hidden';
+                                    }}
+                                    onLoad={(e) => {
+                                        (e.target as HTMLImageElement).style.visibility = 'visible';
+                                    }}
+                                />
+                            ) : null}
+                            <span className="text-2xl font-black text-indigo-500 absolute z-0 uppercase">
+                                {user?.username?.charAt(0) || 'V'}
+                            </span>
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight text-white">

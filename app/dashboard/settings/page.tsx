@@ -100,12 +100,9 @@ export default function SettingsPage() {
                 avatar_url: avatarUrl
             });
 
-            setMessage({ type: "success", text: "Profile updated successfully! Refreshing..." });
-
-            // Hard refresh to force session data sync and clear cache
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            // Refresh Next.js cache and router state
+            router.refresh();
+            setMessage({ type: "success", text: "Profile updated successfully!" });
         } catch (err: any) {
             setMessage({ type: "error", text: err.message });
         } finally {
@@ -139,25 +136,29 @@ export default function SettingsPage() {
                 <div className="bg-zinc-900/40 border border-white/5 p-8 rounded-3xl space-y-8 backdrop-blur-sm">
                     {/* Avatar Section */}
                     <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/5">
-                        <div className="w-32 h-32 bg-indigo-600/20 rounded-full flex items-center justify-center border-2 border-indigo-500/30 overflow-hidden relative group">
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                                src={avatarUrl ? (avatarUrl.startsWith('http') ? avatarUrl : `${avatarUrl}?t=${Date.now()}`) : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
-                                alt="Avatar"
-                                className="absolute inset-0 w-full h-full object-cover z-10"
-                                onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`;
-                                }}
-                            />
-                            {/* Fallback initials (hidden when image loads) */}
-                            {!avatarUrl && (
-                                <span className="text-4xl font-black text-indigo-400 uppercase">
-                                    {user?.username?.charAt(0) || 'V'}
-                                </span>
-                            )}
+                        <div className="w-32 h-32 bg-zinc-800 rounded-full flex items-center justify-center border-2 border-indigo-500/30 overflow-hidden relative group">
+                            {avatarUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                    key={avatarUrl}
+                                    src={`${avatarUrl}?v=${Date.now()}`}
+                                    className="absolute inset-0 w-full h-full object-cover z-10"
+                                    alt="Profile"
+                                    onError={(e) => {
+                                        // If 404 or error, hide image and show initials placeholder
+                                        (e.target as HTMLImageElement).style.visibility = 'hidden';
+                                    }}
+                                    onLoad={(e) => {
+                                        (e.target as HTMLImageElement).style.visibility = 'visible';
+                                    }}
+                                />
+                            ) : null}
+                            <span className="text-4xl font-black text-indigo-500 absolute z-0 uppercase tracking-tighter">
+                                {user?.username?.charAt(0) || 'V'}
+                            </span>
+
                             <div
-                                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-20"
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 <Upload className="w-8 h-8 text-white" />
