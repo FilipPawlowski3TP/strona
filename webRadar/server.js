@@ -40,7 +40,11 @@ wss.on('connection', (ws, request) => {
     const sessionId = ws.sessionId;
     const isCheat = !request.headers['user-agent'] || !request.headers['user-agent'].includes('Mozilla');
 
-    console.log(`New connection for session: ${sessionId} (Cheat: ${isCheat})`);
+    if (isCheat) {
+        console.log('Cheat connected to session:', sessionId);
+    } else {
+        console.log(`Web client connected to session: ${sessionId}`);
+    }
 
     if (!rooms.has(sessionId)) {
         rooms.set(sessionId, new Set());
@@ -51,14 +55,14 @@ wss.on('connection', (ws, request) => {
         rooms.get(sessionId).add(ws);
     }
 
-    ws.on('message', (message) => {
+    ws.on('message', (message, isBinary) => {
         // Only broadcast if message is from cheat
         if (isCheat) {
             const clients = rooms.get(sessionId);
             if (clients) {
                 clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(message);
+                        client.send(message, { binary: isBinary });
                     }
                 });
             }
