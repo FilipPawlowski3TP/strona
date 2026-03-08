@@ -73,6 +73,7 @@ export async function POST(req: Request) {
             status: "success",
             username: user.username,
             avatar_url: avatarUrl || "",
+            is_active: daysLeft > 0,
             days_left: daysLeft,
             hwid: user.hwid
         });

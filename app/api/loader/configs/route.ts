@@ -21,12 +21,27 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
         }
 
-        // The client expects a flat array of configs at the root
-        const responseData = user.cloud_configs.map(config => ({
-            id: config.id,
-            name: config.name,
-            data: config.data
-        }));
+        const expiresAt = new Date(user.subscription_expires_at);
+        const now = new Date();
+        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let avatarUrl = user.avatar_url;
+        if (avatarUrl && !avatarUrl.startsWith("http")) {
+            const origin = new URL(req.url).origin;
+            avatarUrl = `${origin}${avatarUrl}`;
+        }
+
+        const responseData = {
+            is_active: daysLeft > 0,
+            days_left: daysLeft,
+            avatar_url: avatarUrl || "",
+            configs: user.cloud_configs.map(config => ({
+                id: config.id,
+                name: config.name,
+                data: config.data
+            }))
+        };
 
         return NextResponse.json(responseData);
     } catch (error) {
@@ -76,7 +91,24 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        return NextResponse.json({ success: true, message: "Config saved" });
+        const expiresAt = new Date(user.subscription_expires_at);
+        const now = new Date();
+        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let avatarUrl = user.avatar_url;
+        if (avatarUrl && !avatarUrl.startsWith("http")) {
+            const origin = new URL(req.url).origin;
+            avatarUrl = `${origin}${avatarUrl}`;
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: "Config saved",
+            is_active: daysLeft > 0,
+            days_left: daysLeft,
+            avatar_url: avatarUrl || ""
+        });
     } catch (error) {
         console.error("Save config error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -118,7 +150,24 @@ export async function DELETE(req: NextRequest) {
             where: { id: configToDelete.id }
         });
 
-        return NextResponse.json({ success: true, message: "Config deleted" });
+        const expiresAt = new Date(user.subscription_expires_at);
+        const now = new Date();
+        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let avatarUrl = user.avatar_url;
+        if (avatarUrl && !avatarUrl.startsWith("http")) {
+            const origin = new URL(req.url).origin;
+            avatarUrl = `${origin}${avatarUrl}`;
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: "Config deleted",
+            is_active: daysLeft > 0,
+            days_left: daysLeft,
+            avatar_url: avatarUrl || ""
+        });
     } catch (error) {
         console.error("Delete config error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
