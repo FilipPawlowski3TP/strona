@@ -181,10 +181,11 @@ export default function AdminPanel() {
                                 sessionStorage.removeItem("void_admin_key");
                                 window.location.reload();
                             }}
-                            className="p-3 bg-zinc-900 border border-white/5 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all shadow-lg"
-                            title="Logout"
+                            className="flex items-center space-x-2 px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/10 font-bold text-sm"
+                            title="Logout Admin"
                         >
-                            <Lock size={20} />
+                            <Lock size={16} />
+                            <span>Logout</span>
                         </button>
                     </div>
                 </div>
@@ -278,9 +279,14 @@ export default function AdminPanel() {
                                                             onChange={(e) => setDaysToAdd({ ...daysToAdd, [u.id]: parseInt(e.target.value) })}
                                                         />
                                                         <button
-                                                            onClick={() => handleAction("update-subscription", "POST", { userId: u.id, days: daysToAdd[u.id] || 0 })}
-                                                            className="p-1 text-indigo-500 hover:text-indigo-400 transition-colors ml-1"
-                                                            disabled={!daysToAdd[u.id]}
+                                                            onClick={() => {
+                                                                const days = daysToAdd[u.id];
+                                                                if (!days || days <= 0) return;
+                                                                handleAction("update-subscription", "POST", { userId: u.id, days });
+                                                                setDaysToAdd({ ...daysToAdd, [u.id]: 0 }); // Clear input
+                                                            }}
+                                                            className="p-1 text-indigo-500 hover:text-indigo-400 transition-colors ml-1 disabled:opacity-30"
+                                                            disabled={!daysToAdd[u.id] || daysToAdd[u.id] <= 0}
                                                         >
                                                             <Save size={14} />
                                                         </button>

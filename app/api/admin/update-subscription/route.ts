@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { subscription_expires_at: true }
+            select: { username: true, subscription_expires_at: true }
         });
 
         if (!user) {
@@ -25,7 +25,10 @@ export async function POST(req: NextRequest) {
         }
 
         const currentExpiry = new Date(user.subscription_expires_at);
-        const baseDate = currentExpiry > new Date() ? currentExpiry : new Date();
+        const now = new Date();
+
+        // If already expired, start from now. If active, extend from current expiry.
+        const baseDate = currentExpiry > now ? currentExpiry : now;
         const newExpiry = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
 
         await prisma.user.update({
@@ -33,7 +36,10 @@ export async function POST(req: NextRequest) {
             data: { subscription_expires_at: newExpiry }
         });
 
-        return NextResponse.json({ success: true, message: `Added ${days} days. New expiry: ${newExpiry.toISOString()}` });
+        return NextResponse.json({
+            success: true,
+            message: `Success: Added ${days} days to ${user.username}`
+        });
     } catch (error) {
         console.error("Admin subscription update error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
