@@ -14,7 +14,14 @@ export async function GET(req: NextRequest) {
     try {
         const user = await prisma.user.findUnique({
             where: { username },
-            include: { cloud_configs: true }
+            select: {
+                id: true,
+                username: true,
+                hwid: true,
+                avatar_url: true,
+                subscription_expires_at: true,
+                cloud_configs: true,
+            }
         });
 
         if (!user || user.hwid !== hwid) {
@@ -67,7 +74,14 @@ export async function POST(req: NextRequest) {
         }
 
         const user = await prisma.user.findUnique({
-            where: { username }
+            where: { username },
+            select: {
+                id: true,
+                hwid: true,
+                avatar_url: true,
+                username: true,
+                subscription_expires_at: true,
+            }
         });
 
         if (!user || user.hwid !== hwid) {
@@ -140,7 +154,14 @@ export async function DELETE(req: NextRequest) {
 
     try {
         const user = await prisma.user.findUnique({
-            where: { username }
+            where: { username },
+            select: {
+                id: true,
+                hwid: true,
+                avatar_url: true,
+                username: true,
+                subscription_expires_at: true,
+            }
         });
 
         if (!user || user.hwid !== hwid) {
