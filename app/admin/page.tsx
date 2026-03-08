@@ -282,7 +282,7 @@ export default function AdminPanel() {
                                                             onClick={() => {
                                                                 const days = daysToAdd[u.id];
                                                                 if (!days || days <= 0) return;
-                                                                handleAction("update-subscription", "POST", { userId: u.id, days });
+                                                                handleAction("update-days", "POST", { userId: u.id, days });
                                                                 setDaysToAdd({ ...daysToAdd, [u.id]: 0 }); // Clear input
                                                             }}
                                                             className="p-1 text-indigo-500 hover:text-indigo-400 transition-colors ml-1 disabled:opacity-30"

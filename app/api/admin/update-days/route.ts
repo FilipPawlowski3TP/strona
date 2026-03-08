@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
     const adminKey = req.headers.get("x-admin-key");
@@ -36,12 +37,16 @@ export async function POST(req: NextRequest) {
             data: { subscription_expires_at: newExpiry }
         });
 
+        // Revalidate paths for real-time updates
+        revalidatePath("/admin");
+        revalidatePath("/dashboard");
+
         return NextResponse.json({
             success: true,
             message: `Success: Added ${days} days to ${user.username}`
         });
     } catch (error) {
-        console.error("Admin subscription update error:", error);
+        console.error("Admin update-days error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
