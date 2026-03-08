@@ -1,6 +1,9 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
     Users,
     ShieldAlert,
@@ -29,6 +32,7 @@ interface AdminUser {
 export default function AdminPanel() {
     const [adminKey, setAdminKey] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
     const [users, setUsers] = useState<AdminUser[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -82,7 +86,8 @@ export default function AdminPanel() {
             const data = await res.json();
             if (res.ok) {
                 setMessage({ type: "success", text: data.message });
-                fetchUsers(adminKey); // Refresh list
+                fetchUsers(adminKey); // Refresh local state
+                router.refresh();    // Refresh server data
             } else {
                 setMessage({ type: "error", text: data.error });
             }

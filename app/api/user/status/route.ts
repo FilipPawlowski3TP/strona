@@ -27,8 +27,13 @@ export async function GET(req: NextRequest) {
         const expiresAt = new Date(user.subscription_expires_at);
         const isActive = expiresAt > now && !user.is_banned;
 
+        // Calculate days left
+        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
         return NextResponse.json({
             isActive,
+            daysLeft,
             expiresAt: user.subscription_expires_at,
             isBanned: user.is_banned,
             serverTime: now.toISOString()

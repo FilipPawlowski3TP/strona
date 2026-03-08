@@ -15,7 +15,7 @@ model User {
   hwid                  String?
   avatar_url            String?
   is_banned             Boolean   @default(false)
-  subscription_expires_at DateTime
+  subscription_expires_at DateTime @default(now())
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   radar_sessions        RadarSession[]
