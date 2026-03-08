@@ -16,7 +16,7 @@ function getSubscriptionMetadata(user: { subscription_expires_at: Date, avatar_u
     const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const fullAvatarUrl = user.avatar_url
-        ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21:3000${user.avatar_url}`)
+        ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21:3000${user.avatar_url.replace('/cdn/avatars/', '/avatars/')}`)
         : "http://141.227.151.21:3000/default-avatar.png";
 
     return {

@@ -59,7 +59,7 @@ async function processAuth(data: { username?: string; password?: string; hwid?: 
     }
 
     const fullAvatarUrl = user.avatar_url
-        ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21:3000${user.avatar_url}`)
+        ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21:3000${user.avatar_url.replace('/cdn/avatars/', '/avatars/')}`)
         : "http://141.227.151.21:3000/default-avatar.png";
 
     const expiresAt = new Date(user.subscription_expires_at);

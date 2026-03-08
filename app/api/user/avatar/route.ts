@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
         // Update database
         const userId = (session.user as SessionUser).id;
-        const avatarUrl = `/cdn/avatars/${fileName}`;
+        const avatarUrl = `/avatars/${fileName}`;
 
         await prisma.user.update({
             where: { id: userId },
