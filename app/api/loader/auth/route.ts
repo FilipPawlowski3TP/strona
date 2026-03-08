@@ -9,6 +9,7 @@ const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-key",
+    "Content-Type": "application/json",
 };
 
 // Common logic for auth processing
@@ -91,7 +92,7 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: result.error }, { status: result.status, headers: corsHeaders });
     }
 
-    console.log('API SENDING TO LOADER (GET):', result.data);
+    console.log("Wysyłam do loadera (GET Auth):", JSON.stringify(result.data));
     return NextResponse.json(result.data, { headers: corsHeaders });
 }
 
@@ -114,7 +115,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: result.error }, { status: result.status, headers: corsHeaders });
         }
 
-        console.log('API SENDING TO LOADER (POST):', result.data);
+        console.log("Wysyłam do loadera (POST Auth):", JSON.stringify(result.data));
         return NextResponse.json(result.data, { headers: corsHeaders });
     } catch (error) {
         console.error("Loader auth POST error:", error);

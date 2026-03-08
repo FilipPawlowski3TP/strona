@@ -6,6 +6,7 @@ const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-key",
+    "Content-Type": "application/json",
 };
 
 // Common logic for subscription metadata
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
         const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
+            status: "success",
             ...metadata,
             configs: user.cloud_configs.map(config => ({
                 id: config.id,
@@ -75,7 +77,7 @@ export async function GET(req: NextRequest) {
             }))
         };
 
-        console.log('API SENDING CONFIGS TO LOADER:', responseData);
+        console.log("Wysyłam do loadera:", JSON.stringify(responseData));
         return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Fetch configs error:", error);
@@ -140,12 +142,13 @@ export async function POST(req: NextRequest) {
         const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
+            status: "success",
             success: true,
             message: "Config saved",
             ...metadata
         };
 
-        console.log('API SENDING SAVE STATUS TO LOADER:', responseData);
+        console.log("Wysyłam do loadera:", JSON.stringify(responseData));
         return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Save config error:", error);
@@ -198,12 +201,13 @@ export async function DELETE(req: NextRequest) {
         const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
+            status: "success",
             success: true,
             message: "Config deleted",
             ...metadata
         };
 
-        console.log('API SENDING DELETE STATUS TO LOADER:', responseData);
+        console.log("Wysyłam do loadera:", JSON.stringify(responseData));
         return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Delete config error:", error);
