@@ -29,9 +29,7 @@ function getSubscriptionMetadata(user: { subscription_expires_at: Date, avatar_u
 // Helper to parse JSON safely
 async function parseSafeJson(req: Request) {
     const textData = await req.text();
-    if (!textData) {
-        throw new Error("Empty request body");
-    }
+    if (!textData) return {};
     try {
         return JSON.parse(textData);
     } catch (e) {
@@ -73,7 +71,7 @@ export async function GET(req: NextRequest) {
             configs: user.cloud_configs.map(config => ({
                 id: config.id,
                 name: config.name,
-                data: config.data
+                data: JSON.stringify(config.data)
             }))
         };
 

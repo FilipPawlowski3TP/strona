@@ -98,16 +98,14 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     try {
         const textData = await req.text();
+        let body = {};
 
-        if (!textData) {
-            return NextResponse.json({ error: "Empty request body" }, { status: 400, headers: corsHeaders });
-        }
-
-        let body;
-        try {
-            body = JSON.parse(textData);
-        } catch (e) {
-            return NextResponse.json({ error: "Invalid JSON input" }, { status: 400, headers: corsHeaders });
+        if (textData) {
+            try {
+                body = JSON.parse(textData);
+            } catch (e) {
+                return NextResponse.json({ error: "Invalid JSON input" }, { status: 400, headers: corsHeaders });
+            }
         }
 
         const result = await processAuth(body);
