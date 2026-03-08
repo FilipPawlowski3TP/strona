@@ -44,7 +44,7 @@ export default function DashboardPage() {
                         <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20 overflow-hidden">
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
-                                src={user?.avatar_url ? `${user.avatar_url}?t=${new Date().getTime()}` : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
+                                src={user?.avatar_url ? (user.avatar_url.startsWith('http') ? user.avatar_url : `${user.avatar_url}?t=${Date.now()}`) : `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=6366f1&color=fff`}
                                 alt="User Avatar"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
