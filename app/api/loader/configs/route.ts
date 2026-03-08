@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// CORS headers configuration
+const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-key",
+};
+
+// Common logic for subscription metadata
+function getSubscriptionMetadata(user: { subscription_expires_at: Date, avatar_url: string | null, username: string }) {
+    const expiresAt = new Date(user.subscription_expires_at);
+    const now = new Date();
+    const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const fullAvatarUrl = user.avatar_url
+        ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21:3000${user.avatar_url}`)
+        : "http://141.227.151.21:3000/default-avatar.png";
+
+    return {
+        is_active: daysLeft > 0,
+        days_left: daysLeft,
+        avatar_url: fullAvatarUrl
+    };
+}
+
 // GET: Fetch all configs for a specific user after HWID verification
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -8,7 +33,7 @@ export async function GET(req: NextRequest) {
     const hwid = searchParams.get("hwid");
 
     if (!username || !hwid) {
-        return NextResponse.json({ error: "Missing username or hwid" }, { status: 400 });
+        return NextResponse.json({ error: "Missing username or hwid" }, { status: 400, headers: corsHeaders });
     }
 
     try {
@@ -25,17 +50,13 @@ export async function GET(req: NextRequest) {
         });
 
         if (!user || user.hwid !== hwid) {
-            return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+            return NextResponse.json({ error: "Authentication failed" }, { status: 401, headers: corsHeaders });
         }
 
-        const fullAvatarUrl = user.avatar_url
-            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
-            : "http://141.227.151.21/default-avatar.png";
+        const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
-            is_active: daysLeft > 0,
-            days_left: daysLeft,
-            avatar_url: fullAvatarUrl,
+            ...metadata,
             configs: user.cloud_configs.map(config => ({
                 id: config.id,
                 name: config.name,
@@ -44,10 +65,10 @@ export async function GET(req: NextRequest) {
         };
 
         console.log('API SENDING CONFIGS TO LOADER:', responseData);
-        return NextResponse.json(responseData);
+        return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Fetch configs error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers: corsHeaders });
     }
 }
 
@@ -58,7 +79,7 @@ export async function POST(req: NextRequest) {
         const { username, hwid, name, data } = body;
 
         if (!username || !hwid || !name || !data) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400, headers: corsHeaders });
         }
 
         const user = await prisma.user.findUnique({
@@ -73,7 +94,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!user || user.hwid !== hwid) {
-            return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+            return NextResponse.json({ error: "Authentication failed" }, { status: 401, headers: corsHeaders });
         }
 
         // Upsert logic: find existing by name and userId
@@ -99,23 +120,19 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const fullAvatarUrl = user.avatar_url
-            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
-            : "http://141.227.151.21/default-avatar.png";
+        const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
             success: true,
             message: "Config saved",
-            is_active: daysLeft > 0,
-            days_left: daysLeft,
-            avatar_url: fullAvatarUrl
+            ...metadata
         };
 
         console.log('API SENDING SAVE STATUS TO LOADER:', responseData);
-        return NextResponse.json(responseData);
+        return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Save config error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers: corsHeaders });
     }
 }
 
@@ -127,7 +144,7 @@ export async function DELETE(req: NextRequest) {
     const name = searchParams.get("name");
 
     if (!username || !hwid || !name) {
-        return NextResponse.json({ error: "Missing required query params" }, { status: 400 });
+        return NextResponse.json({ error: "Missing required query params" }, { status: 400, headers: corsHeaders });
     }
 
     try {
@@ -143,7 +160,7 @@ export async function DELETE(req: NextRequest) {
         });
 
         if (!user || user.hwid !== hwid) {
-            return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+            return NextResponse.json({ error: "Authentication failed" }, { status: 401, headers: corsHeaders });
         }
 
         const configToDelete = await prisma.cloudConfig.findFirst({
@@ -154,29 +171,29 @@ export async function DELETE(req: NextRequest) {
         });
 
         if (!configToDelete) {
-            return NextResponse.json({ error: "Config not found" }, { status: 404 });
+            return NextResponse.json({ error: "Config not found" }, { status: 404, headers: corsHeaders });
         }
 
         await prisma.cloudConfig.delete({
             where: { id: configToDelete.id }
         });
 
-        const fullAvatarUrl = user.avatar_url
-            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
-            : "http://141.227.151.21/default-avatar.png";
+        const metadata = getSubscriptionMetadata(user);
 
         const responseData = {
             success: true,
             message: "Config deleted",
-            is_active: daysLeft > 0,
-            days_left: daysLeft,
-            avatar_url: fullAvatarUrl
+            ...metadata
         };
 
         console.log('API SENDING DELETE STATUS TO LOADER:', responseData);
-        return NextResponse.json(responseData);
+        return NextResponse.json(responseData, { headers: corsHeaders });
     } catch (error) {
         console.error("Delete config error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers: corsHeaders });
     }
+}
+
+export async function OPTIONS() {
+    return new Response(null, { status: 204, headers: corsHeaders });
 }
