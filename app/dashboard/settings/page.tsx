@@ -141,7 +141,7 @@ export default function SettingsPage() {
                                 /* eslint-disable-next-line @next/next/no-img-element */
                                 <img
                                     key={avatarUrl}
-                                    src={`${avatarUrl}?v=${Date.now()}`}
+                                    src={avatarUrl ? (avatarUrl.startsWith('http') || avatarUrl.startsWith('/cdn/') ? `${avatarUrl}?v=${Date.now()}` : `/cdn${avatarUrl}?v=${Date.now()}`) : ''}
                                     className="absolute inset-0 w-full h-full object-cover z-10"
                                     alt="Profile"
                                     onError={(e) => {

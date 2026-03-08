@@ -46,7 +46,7 @@ export default function DashboardPage() {
                                 /* eslint-disable-next-line @next/next/no-img-element */
                                 <img
                                     key={user.avatar_url}
-                                    src={`${user.avatar_url}?v=${Date.now()}`}
+                                    src={user.avatar_url.startsWith('http') || user.avatar_url.startsWith('/cdn/') ? `${user.avatar_url}?v=${Date.now()}` : `/cdn${user.avatar_url}?v=${Date.now()}`}
                                     alt="User Avatar"
                                     className="absolute inset-0 w-full h-full object-cover z-10"
                                     onError={(e) => {
