@@ -59,9 +59,15 @@ export async function POST(req: Request) {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let avatarUrl = (user as any).avatar_url;
-        if (avatarUrl && !avatarUrl.startsWith("http")) {
-            const origin = new URL(req.url).origin;
-            avatarUrl = `${origin}${avatarUrl}`;
+        const origin = new URL(req.url).origin;
+
+        if (avatarUrl) {
+            if (!avatarUrl.startsWith("http")) {
+                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
+            }
+        } else {
+            // Default placeholder if avatar is missing
+            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
         }
 
         const expiresAt = new Date(user.subscription_expires_at);

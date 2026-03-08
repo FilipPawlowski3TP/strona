@@ -26,10 +26,16 @@ export async function GET(req: NextRequest) {
         const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+        const origin = new URL(req.url).origin;
         let avatarUrl = user.avatar_url;
-        if (avatarUrl && !avatarUrl.startsWith("http")) {
-            const origin = new URL(req.url).origin;
-            avatarUrl = `${origin}${avatarUrl}`;
+
+        if (avatarUrl) {
+            if (!avatarUrl.startsWith("http")) {
+                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
+            }
+        } else {
+            // Default placeholder if avatar is missing
+            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
         }
 
         const responseData = {
@@ -96,10 +102,16 @@ export async function POST(req: NextRequest) {
         const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+        const origin = new URL(req.url).origin;
         let avatarUrl = user.avatar_url;
-        if (avatarUrl && !avatarUrl.startsWith("http")) {
-            const origin = new URL(req.url).origin;
-            avatarUrl = `${origin}${avatarUrl}`;
+
+        if (avatarUrl) {
+            if (!avatarUrl.startsWith("http")) {
+                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
+            }
+        } else {
+            // Default placeholder if avatar is missing
+            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
         }
 
         return NextResponse.json({
@@ -155,10 +167,16 @@ export async function DELETE(req: NextRequest) {
         const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+        const origin = new URL(req.url).origin;
         let avatarUrl = user.avatar_url;
-        if (avatarUrl && !avatarUrl.startsWith("http")) {
-            const origin = new URL(req.url).origin;
-            avatarUrl = `${origin}${avatarUrl}`;
+
+        if (avatarUrl) {
+            if (!avatarUrl.startsWith("http")) {
+                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
+            }
+        } else {
+            // Default placeholder if avatar is missing
+            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
         }
 
         return NextResponse.json({
