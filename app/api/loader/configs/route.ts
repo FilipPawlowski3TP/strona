@@ -26,6 +26,19 @@ function getSubscriptionMetadata(user: { subscription_expires_at: Date, avatar_u
     };
 }
 
+// Helper to parse JSON safely
+async function parseSafeJson(req: Request) {
+    const textData = await req.text();
+    if (!textData) {
+        throw new Error("Empty request body");
+    }
+    try {
+        return JSON.parse(textData);
+    } catch (e) {
+        throw new Error("Invalid JSON input");
+    }
+}
+
 // GET: Fetch all configs for a specific user after HWID verification
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -75,7 +88,13 @@ export async function GET(req: NextRequest) {
 // POST: Save or overwrite a user configuration
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
+        let body;
+        try {
+            body = await parseSafeJson(req);
+        } catch (e: any) {
+            return NextResponse.json({ error: e.message }, { status: 400, headers: corsHeaders });
+        }
+
         const { username, hwid, name, data } = body;
 
         if (!username || !hwid || !name || !data) {

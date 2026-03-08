@@ -97,7 +97,19 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     try {
-        const body = await req.json();
+        const textData = await req.text();
+
+        if (!textData) {
+            return NextResponse.json({ error: "Empty request body" }, { status: 400, headers: corsHeaders });
+        }
+
+        let body;
+        try {
+            body = JSON.parse(textData);
+        } catch (e) {
+            return NextResponse.json({ error: "Invalid JSON input" }, { status: 400, headers: corsHeaders });
+        }
+
         const result = await processAuth(body);
 
         if (result.error) {
@@ -108,7 +120,7 @@ export async function POST(req: Request) {
         return NextResponse.json(result.data, { headers: corsHeaders });
     } catch (error) {
         console.error("Loader auth POST error:", error);
-        return NextResponse.json({ error: "Invalid JSON or internal error" }, { status: 400, headers: corsHeaders });
+        return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
     }
 }
 
