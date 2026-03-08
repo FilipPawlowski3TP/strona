@@ -66,32 +66,26 @@ export async function POST(req: Request) {
             );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let avatarUrl = (user as any).avatar_url;
-        const origin = new URL(req.url).origin;
-
-        if (avatarUrl) {
-            if (!avatarUrl.startsWith("http")) {
-                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
-            }
-        } else {
-            // Default placeholder if avatar is missing
-            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
-        }
+        const fullAvatarUrl = user.avatar_url
+            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
+            : "http://141.227.151.21/default-avatar.png";
 
         const expiresAt = new Date(user.subscription_expires_at);
         const now = new Date();
         const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        return NextResponse.json({
+        const responseData = {
             status: "success",
             username: user.username,
-            avatar_url: avatarUrl || "",
+            avatar_url: fullAvatarUrl,
             is_active: daysLeft > 0,
             days_left: daysLeft,
             hwid: user.hwid
-        });
+        };
+
+        console.log('API SENDING TO LOADER:', responseData);
+        return NextResponse.json(responseData);
 
     } catch (error) {
         console.error("Loader auth error:", error);

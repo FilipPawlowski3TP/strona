@@ -28,27 +28,14 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
         }
 
-        const expiresAt = new Date(user.subscription_expires_at);
-        const now = new Date();
-        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
-        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        const origin = new URL(req.url).origin;
-        let avatarUrl = user.avatar_url;
-
-        if (avatarUrl) {
-            if (!avatarUrl.startsWith("http")) {
-                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
-            }
-        } else {
-            // Default placeholder if avatar is missing
-            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
-        }
+        const fullAvatarUrl = user.avatar_url
+            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
+            : "http://141.227.151.21/default-avatar.png";
 
         const responseData = {
             is_active: daysLeft > 0,
             days_left: daysLeft,
-            avatar_url: avatarUrl || "",
+            avatar_url: fullAvatarUrl,
             configs: user.cloud_configs.map(config => ({
                 id: config.id,
                 name: config.name,
@@ -56,6 +43,7 @@ export async function GET(req: NextRequest) {
             }))
         };
 
+        console.log('API SENDING CONFIGS TO LOADER:', responseData);
         return NextResponse.json(responseData);
     } catch (error) {
         console.error("Fetch configs error:", error);
@@ -111,30 +99,20 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const expiresAt = new Date(user.subscription_expires_at);
-        const now = new Date();
-        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
-        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const fullAvatarUrl = user.avatar_url
+            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
+            : "http://141.227.151.21/default-avatar.png";
 
-        const origin = new URL(req.url).origin;
-        let avatarUrl = user.avatar_url;
-
-        if (avatarUrl) {
-            if (!avatarUrl.startsWith("http")) {
-                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
-            }
-        } else {
-            // Default placeholder if avatar is missing
-            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
-        }
-
-        return NextResponse.json({
+        const responseData = {
             success: true,
             message: "Config saved",
             is_active: daysLeft > 0,
             days_left: daysLeft,
-            avatar_url: avatarUrl || ""
-        });
+            avatar_url: fullAvatarUrl
+        };
+
+        console.log('API SENDING SAVE STATUS TO LOADER:', responseData);
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error("Save config error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -183,30 +161,20 @@ export async function DELETE(req: NextRequest) {
             where: { id: configToDelete.id }
         });
 
-        const expiresAt = new Date(user.subscription_expires_at);
-        const now = new Date();
-        const diffTime = Math.max(0, expiresAt.getTime() - now.getTime());
-        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const fullAvatarUrl = user.avatar_url
+            ? (user.avatar_url.startsWith('http') ? user.avatar_url : `http://141.227.151.21${user.avatar_url}`)
+            : "http://141.227.151.21/default-avatar.png";
 
-        const origin = new URL(req.url).origin;
-        let avatarUrl = user.avatar_url;
-
-        if (avatarUrl) {
-            if (!avatarUrl.startsWith("http")) {
-                avatarUrl = `${origin}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
-            }
-        } else {
-            // Default placeholder if avatar is missing
-            avatarUrl = `https://ui-avatars.com/api/?name=${user.username}&background=6366f1&color=fff&size=128`;
-        }
-
-        return NextResponse.json({
+        const responseData = {
             success: true,
             message: "Config deleted",
             is_active: daysLeft > 0,
             days_left: daysLeft,
-            avatar_url: avatarUrl || ""
-        });
+            avatar_url: fullAvatarUrl
+        };
+
+        console.log('API SENDING DELETE STATUS TO LOADER:', responseData);
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error("Delete config error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
