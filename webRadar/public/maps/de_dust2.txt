@@ -1,0 +1,3 @@
+pos_x -2231
+pos_y 1406
+scale 4.4
