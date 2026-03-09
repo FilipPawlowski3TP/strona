@@ -71,22 +71,13 @@ export default function RadarView({ shareCode }: { shareCode: string }) {
     useEffect(() => { localTeamRef.current = localTeam }, [localTeam]);
 
     useEffect(() => {
-        fetchSession();
+        setSession({ id: shareCode });
+        connectWebSocket(shareCode);
         return () => {
             if (wsRef.current) wsRef.current.close();
             if (animationRef.current) cancelAnimationFrame(animationRef.current);
         }
     }, [shareCode]);
-
-    useEffect(() => {
-        if (session && connectedSessionIdRef.current !== session.id) {
-            connectedSessionIdRef.current = session.id;
-            connectWebSocket();
-            if (session.mapName) {
-                loadMapImage(session.mapName.toLowerCase());
-            }
-        }
-    }, [session]);
 
     const loadMapImage = useCallback((mapName: string) => {
         if (!mapName) return;
@@ -126,37 +117,19 @@ export default function RadarView({ shareCode }: { shareCode: string }) {
         img.src = `${ASSETS_BASE_URL}/${mapData.image}`;
     }, []);
 
-    const fetchSession = async () => {
-        if (sessionInitRef.current && session?.id) return;
-        sessionInitRef.current = true;
 
-        try {
-            const res = await fetch(`/api/radar/join/${shareCode}`);
-            const data = await res.json();
-            if (data.success) {
-                setSession((prev: any) => {
-                    if (prev && prev.id === data.session.id && prev.mapName === data.session.mapName) return prev;
-                    return data.session;
-                });
-            } else {
-                setError(data.error || 'Session not found');
-            }
-        } catch (err) {
-            setError('Failed to connect to server');
-        }
-    };
+    const connectWebSocket = (sid: string) => {
+        const wsUrl = `ws://141.227.151.21/ws/${sid}`;
 
-    const connectWebSocket = () => {
-        // Assuming backend WS is running on port 3000 locally, or same host in prod
-        const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-        const backendHost = isLocalhost ? 'localhost:3000' : window.location.host;
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${backendHost}/ws/radar?session=${session.id}`;
+        if (wsRef.current) wsRef.current.close();
 
         wsRef.current = new WebSocket(wsUrl);
         wsRef.current.binaryType = 'arraybuffer';
 
-        wsRef.current.onopen = () => setWsConnected(true);
+        wsRef.current.onopen = () => {
+            setWsConnected(true);
+            setError(null);
+        };
 
         wsRef.current.onmessage = (event) => {
             try {
@@ -241,10 +214,14 @@ export default function RadarView({ shareCode }: { shareCode: string }) {
 
         wsRef.current.onclose = () => {
             setWsConnected(false);
-            setTimeout(() => { if (session) connectWebSocket() }, 2000);
+            setError('Session Not Found');
+            setTimeout(() => { connectWebSocket(sid) }, 3000);
         };
 
-        wsRef.current.onerror = () => setWsConnected(false);
+        wsRef.current.onerror = () => {
+            setWsConnected(false);
+            setError('Session Not Found');
+        };
     };
 
     useEffect(() => {
